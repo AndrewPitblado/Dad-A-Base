@@ -1,11 +1,11 @@
 {
   "images" : [
     {
+      "filename" : "DarkBbq.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "Shed.jpg",
       "idiom" : "universal",
       "scale" : "2x"
     },

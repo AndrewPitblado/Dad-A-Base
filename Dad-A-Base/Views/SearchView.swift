@@ -9,7 +9,7 @@ import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel = JokeSearchViewModel()
-    
+    @Environment(\.colorScheme) var colorScheme
     private let categories: [JokeCategory] = [
         .init(name: "Animals", term:"dog"),
         .init(name: "Food", term:"food"),
@@ -22,10 +22,10 @@ struct SearchView: View {
     var body: some View {
         NavigationStack{
             ZStack {
-                Image("Shed")
+                Image(colorScheme == .dark ? "DarkBbq" : "Bbq")
                     .resizable()
-                    
                     .ignoresSafeArea()
+                
                 VStack (spacing: 12){
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
@@ -90,10 +90,16 @@ struct SearchView: View {
                     .padding(.top)
                 }
             }
-            .navigationTitle("Search Jokes")
+            .navigationTitle("Search for Jokes")
+            
+            
+            
+            
+            
             
             
         }
+        
     }
 }
 
