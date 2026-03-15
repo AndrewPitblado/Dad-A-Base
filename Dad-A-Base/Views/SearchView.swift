@@ -22,7 +22,9 @@ struct SearchView: View {
     var body: some View {
         NavigationStack{
             ZStack {
-                Color.red
+                Image("Shed")
+                    .resizable()
+                    
                     .ignoresSafeArea()
                 VStack (spacing: 12){
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -31,10 +33,11 @@ struct SearchView: View {
                                 Button(category.name) {
                                     viewModel.searchTerm = category.term
                                     Task {                                    await viewModel.search()}
-                                }.padding(.horizontal, 12)
+                                }
+                                .foregroundStyle(Color("PrimaryText"))
+                                .padding(.horizontal, 12)
                                     .padding(.vertical, 8)
-                                    .background(Color.white.opacity(0.8))
-                                    .clipShape(Capsule())
+                                    .glassEffect(.regular.tint(Color("PrimaryBackground")).interactive())
                             }
                             
                         }
@@ -64,23 +67,32 @@ struct SearchView: View {
                         }
                         
                         if !viewModel.isLoading {
-                            List(viewModel.results) { joke in
-                                VStack(alignment: .leading, spacing: 6) {
-                                    Text(joke.joke)
-                                        .font(.body)
+                            
+                                
+                                List(viewModel.results) { joke in
+                                    VStack(alignment: .leading, spacing: 6) {
+                                        Text(joke.joke)
+                                            .font(.body)
+                                            .foregroundStyle(Color("PrimaryText"))
+                                    }
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 4)
+                                    
                                 }
-                                .padding(.vertical, 4)
-                                .padding(.horizontal, 4)
-                            }
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .listStyle(.plain)
-                            .padding(.horizontal, 20)
+                                .glassEffect(in: .rect(cornerRadius: 12))
+                                
+                                .listStyle(.plain)
+                                .padding(.horizontal, 20)
+                            
+                            
                         }
                     }
                     .padding(.top)
                 }
             }
             .navigationTitle("Search Jokes")
+            
+            
         }
     }
 }
