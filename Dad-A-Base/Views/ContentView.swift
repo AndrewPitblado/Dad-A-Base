@@ -11,24 +11,27 @@ import SwiftData
 
 struct ContentView: View {
     @StateObject private var viewModel = JokeViewModel()
+    @Environment(\.colorScheme) var colorScheme
+    
 
     var body: some View {
         ZStack {
-            Color.blue
+            Color("AppBackground")
                 .ignoresSafeArea()
 
             VStack {
                 Text("Here is your dad joke of the day!")
+                    .foregroundStyle(Color("PrimaryText"))
                     .font(.title)
                     .padding()
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .background(Color.white.opacity(0.8))
+                    .background(Color("PrimaryBackground"))
                     .padding(.top, 50)
 
                 Spacer()
 
                 ZStack {
-                        Image("DadSign")
+                    Image(colorScheme == .dark ? "DadSignDark" : "DadSign")
                             .resizable()
                             .interpolation(.high)
                             .antialiased(true)
@@ -42,9 +45,10 @@ struct ContentView: View {
                         overlayContent
                             .frame(maxWidth: 400, maxHeight: 300)
                             .offset(y: -70)
+                            
                 }
                 Rectangle()
-                    .fill(Color.black.opacity(0.8))
+                    .fill(Color("PrimaryBackground"))
                     .frame(height: 25)
                     .offset(y: -50)
                     
@@ -59,9 +63,9 @@ struct ContentView: View {
                         )
                     }
                     .padding()
-                    .background(Color.pink.opacity(0.8))
+                    .background(Color("LikeButton").opacity(0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color("PrimaryText"))
                     .padding(10)
 
                     ShareLink(
@@ -72,9 +76,9 @@ struct ContentView: View {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                     .padding()
-                    .background(viewModel.canShare ? Color.black.opacity(0.8) : Color.gray.opacity(0.6))
+                    .background(viewModel.canShare ? Color("PrimaryBackground").opacity(0.8) : Color.gray.opacity(0.6))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color("PrimaryText"))
                     .padding(10)
                     .disabled(!viewModel.canShare)
 
@@ -84,9 +88,9 @@ struct ContentView: View {
                         Label("New Joke", systemImage: "arrow.clockwise")
                     }
                     .padding()
-                    .background(Color.orange.opacity(0.9))
+                    .background(Color("JokeButton").opacity(0.9))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(Color("PrimaryText"))
                     .padding(5)
                 }
 
@@ -108,11 +112,11 @@ struct ContentView: View {
                     .tint(.black)
                 Text("Loading your dad joke...")
                     .font(.subheadline)
-                    .foregroundStyle(.black)
+                    .foregroundStyle(Color("PrimaryText"))
             }
             .padding(.horizontal, 20)
             .padding(.vertical, 12)
-            .background(.ultraThinMaterial)
+            .background(Color("PrimaryBackground"))
             .clipShape(RoundedRectangle(cornerRadius: 8))
 
         case .success(let joke):
@@ -120,9 +124,11 @@ struct ContentView: View {
                 .font(.headline)
                 .multilineTextAlignment(.center)
                 .lineLimit(5)
+                .padding(.horizontal, 5)
+                .padding(.vertical, 10)
                 .minimumScaleFactor(0.75)
-                .background(.ultraThinMaterial)
-                .foregroundStyle(.black)
+                .background(Color("PrimaryBackground"))
+                .foregroundStyle(Color("PrimaryText"))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
 
