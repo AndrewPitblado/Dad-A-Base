@@ -19,9 +19,9 @@ struct MainTabView: View {
                 SearchView()
             }
             
-            Tab("Profile", systemImage: "person"){
+            Tab("Liked", systemImage: "heart"){
                 
-                ContentView()
+                LikedJokesView()
             }
         }
     }

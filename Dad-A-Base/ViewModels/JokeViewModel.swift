@@ -19,7 +19,6 @@ final class JokeViewModel: ObservableObject {
     }
 
     @Published var jokeState: JokeState = .loading
-    @Published var isFavorite = false
 
     var currentJokeText: String {
         switch jokeState {
@@ -37,13 +36,8 @@ final class JokeViewModel: ObservableObject {
         return false
     }
 
-    func toggleFavorite() {
-        isFavorite.toggle()
-    }
-
     func fetchJoke() async {
         jokeState = .loading
-        isFavorite = false
 
         guard let url = URL(string: "https://icanhazdadjoke.com/") else {
             jokeState = .error("Invalid joke service URL.")
@@ -74,4 +68,3 @@ final class JokeViewModel: ObservableObject {
 private struct DadJokeResponse: Decodable {
     let joke: String
 }
-

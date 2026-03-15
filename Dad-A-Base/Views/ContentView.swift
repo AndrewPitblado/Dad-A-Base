@@ -12,7 +12,17 @@ import SwiftData
 struct ContentView: View {
     @StateObject private var viewModel = JokeViewModel()
     @Environment(\.colorScheme) var colorScheme
-    
+    @State private var toastMessage = ""
+    @State private var showToast = false
+    @Environment(\.modelContext) private var modelContext
+    @Query(sort: \FavoriteJoke.dateAdded, order: .reverse) private var favorites: [FavoriteJoke]
+
+    private var isCurrentJokeFavorite: Bool {
+        if case .success(let joke) = viewModel.jokeState {
+            return favorites.contains { $0.text == joke }
+        }
+        return false
+    }
 
     var body: some View {
         ZStack {
@@ -55,11 +65,12 @@ struct ContentView: View {
 
                 HStack {
                     Button {
-                        viewModel.toggleFavorite()
+                        toggleFavoriteForCurrentJoke()
+                        
                     } label: {
                         Label(
-                            viewModel.isFavorite ? "Liked" : "Like",
-                            systemImage: viewModel.isFavorite ? "heart.fill" : "heart"
+                            isCurrentJokeFavorite ? "Liked" : "Like",
+                            systemImage: isCurrentJokeFavorite ? "heart.fill" : "heart"
                         )
                     }
                     .padding()
@@ -101,6 +112,50 @@ struct ContentView: View {
             await viewModel.fetchJoke()
         }
         .animation(.spring(duration: 0.35), value: viewModel.currentJokeText)
+        
+        .overlay(alignment: .bottom) {
+            if showToast {
+                Text(toastMessage)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color("PrimaryText"))
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 10)
+                    .background(Color("PrimaryBackground").opacity(0.9))
+                    .clipShape(Capsule())
+                    .padding(.bottom, 24)
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+    }
+
+    private func toggleFavoriteForCurrentJoke() {
+        guard case .success(let joke) = viewModel.jokeState else { return }
+        do {
+            if let existing = favorites.first(where: { $0.text == joke }) {
+                modelContext.delete(existing)
+                toastMessage = "Removed from liked jokes"
+            } else {
+                modelContext.insert(FavoriteJoke(text: joke))
+                toastMessage = "Joke liked"
+            }
+
+            try modelContext.save()
+            showToastTemporarily()
+        } catch {
+            print("Failed to save favorite joke: \(error.localizedDescription)")
+        }
+    }
+    
+    private func showToastTemporarily() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showToast = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showToast = false
+            }
+        }
     }
 
     @ViewBuilder

@@ -15,5 +15,6 @@ struct Dad_A_BaseApp: App {
         WindowGroup {
             MainTabView()
         }
+        .modelContainer(for: [FavoriteJoke.self])
     }
 }
