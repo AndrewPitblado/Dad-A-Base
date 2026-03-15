@@ -24,6 +24,7 @@ struct SearchView: View {
             ZStack {
                 Image(colorScheme == .dark ? "DarkBbq" : "Bbq")
                     .resizable()
+                    .scaleEffect(1.1)
                     .ignoresSafeArea()
                 
                 VStack (spacing: 12){
@@ -80,13 +81,15 @@ struct SearchView: View {
                                     
                                 }
                                 .glassEffect(in: .rect(cornerRadius: 12))
-                                
+                                .mask(RoundedRectangle(cornerRadius: 12))
                                 .listStyle(.plain)
                                 .padding(.horizontal, 20)
                             
                             
                         }
+                            
                     }
+                   
                     .padding(.top)
                 }
             }
