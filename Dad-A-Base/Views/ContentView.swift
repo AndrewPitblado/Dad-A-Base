@@ -77,12 +77,11 @@ struct ContentView: View {
                     .background(Color("LikeButton").opacity(0.8))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .foregroundStyle(Color("PrimaryText"))
-                    .padding(10)
+                    .padding(8)
 
                     ShareLink(
-                        item: viewModel.currentJokeText,
-                        subject: Text("Dad Joke of the Day"),
-                        message: Text("Check out this dad joke!")
+                        item: "Check out this dad joke:\n\n\(viewModel.currentJokeText)",
+                        subject: Text("Dad Joke")
                     ) {
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
@@ -90,7 +89,7 @@ struct ContentView: View {
                     .background(viewModel.canShare ? Color("PrimaryBackground").opacity(0.8) : Color.gray.opacity(0.6))
                     .clipShape(RoundedRectangle(cornerRadius: 10))
                     .foregroundStyle(Color("PrimaryText"))
-                    .padding(10)
+                    .padding(8)
                     .disabled(!viewModel.canShare)
 
                     Button {
@@ -113,7 +112,7 @@ struct ContentView: View {
         }
         .animation(.spring(duration: 0.35), value: viewModel.currentJokeText)
         
-        .overlay(alignment: .bottom) {
+        .overlay(alignment: .bottomLeading) {
             if showToast {
                 Text(toastMessage)
                     .font(.subheadline.weight(.semibold))
@@ -122,7 +121,8 @@ struct ContentView: View {
                     .padding(.vertical, 10)
                     .background(Color("PrimaryBackground").opacity(0.9))
                     .clipShape(Capsule())
-                    .padding(.bottom, 24)
+                    .padding(.leading, 10)
+                    .padding(.bottom, 100)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
