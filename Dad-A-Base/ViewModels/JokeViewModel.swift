@@ -19,16 +19,14 @@ final class JokeViewModel: ObservableObject {
     }
 
     @Published var jokeState: JokeState = .loading
+    private let lastFetchKey = "lastJokeFetchDate"
+    private let autoRefreshInterval: TimeInterval = 24*60*60 // one day
 
     var currentJokeText: String {
-        switch jokeState {
-        case .loading:
-            return "Loading your dad joke..."
-        case .success(let joke):
+        if case .success(let joke) = jokeState{
             return joke
-        case .error(let message):
-            return message
         }
+        return ""
     }
 
     var canShare: Bool {
@@ -36,6 +34,20 @@ final class JokeViewModel: ObservableObject {
         return false
     }
 
+    
+    func fetchJokeIfNeeded(force: Bool = false) async {
+         guard force || shouldAutoFetch else { return }
+         await fetchJoke()
+     }
+
+     private var shouldAutoFetch: Bool {
+         let defaults = UserDefaults.standard
+         guard let lastFetch = defaults.object(forKey: lastFetchKey) as? Date else {
+             return true
+         }
+         return Date().timeIntervalSince(lastFetch) >= autoRefreshInterval
+     }
+    
     func fetchJoke() async {
         jokeState = .loading
 
@@ -59,6 +71,7 @@ final class JokeViewModel: ObservableObject {
 
             let decoded = try JSONDecoder().decode(DadJokeResponse.self, from: data)
             jokeState = .success(decoded.joke)
+            UserDefaults.standard.set(Date(), forKey: lastFetchKey)
         } catch {
             jokeState = .error("Network error. Please try again.")
         }

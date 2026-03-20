@@ -92,7 +92,7 @@ struct ContentView: View {
                     .disabled(!viewModel.canShare)
 
                     Button {
-                        Task { await viewModel.fetchJoke() }
+                        Task { await viewModel.fetchJokeIfNeeded(force: true) }
                     } label: {
                         Label("New Joke", systemImage: "arrow.clockwise")
                     }
@@ -107,7 +107,7 @@ struct ContentView: View {
             }
         }
         .task {
-            await viewModel.fetchJoke()
+            await viewModel.fetchJokeIfNeeded()
                 
         }
         .animation(.spring(duration: 0.35), value: viewModel.currentJokeText)
