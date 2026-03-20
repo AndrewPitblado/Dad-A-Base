@@ -39,13 +39,9 @@ struct LikedJokesView: View {
                                     .listRowBackground(Color("PrimaryBackground").opacity(0.75))
                                     .multilineTextAlignment(.leading)
                                     .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                        Button {
-                                            shareText = favorite.text
-                                            
-                                        } label: {
+                                        ShareLink(items: ["Check out this dad joke:\n\n\(favorite.text)"]) {
                                             Label("Share", systemImage: "square.and.arrow.up")
                                         }
-                                        .tint(.blue)
                                     }
                                 }
                                 .onDelete(perform: deleteFavorites)
@@ -62,16 +58,6 @@ struct LikedJokesView: View {
                 }
             .navigationTitle("Liked Jokes")
         }
-        .sheet(isPresented: Binding(
-            get: { shareText != nil },
-            set: { if !$0 { shareText = nil } }
-        )) {
-            if let text = shareText {
-                ShareLink(items: ["Check out this dad joke:\n\n\(text)"])
-            }
-            
-        }
-        
     }
     
     private func deleteFavorites(at offsets: IndexSet) {
