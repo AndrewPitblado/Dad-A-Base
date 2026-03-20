@@ -42,6 +42,7 @@ struct LikedJokesView: View {
                                         ShareLink(items: ["Check out this dad joke:\n\n\(favorite.text)"]) {
                                             Label("Share", systemImage: "square.and.arrow.up")
                                         }
+                                        .tint(Color("PrimaryBackground"))
                                     }
                                 }
                                 .onDelete(perform: deleteFavorites)
