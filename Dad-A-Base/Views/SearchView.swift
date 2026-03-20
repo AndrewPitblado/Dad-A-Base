@@ -6,10 +6,17 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct SearchView: View {
     @StateObject private var viewModel = JokeSearchViewModel()
+    @Environment(\.modelContext) private var modelContext
     @Environment(\.colorScheme) var colorScheme
+    @Query(sort: \FavoriteJoke.dateAdded, order: .reverse) private var favorites: [FavoriteJoke]
+    
+    @State private var toastMessage = ""
+    @State private var showToast = false
+    
     private let categories: [JokeCategory] = [
         .init(name: "Animals", term:"dog"),
         .init(name: "Food", term:"food"),
@@ -23,7 +30,7 @@ struct SearchView: View {
         NavigationStack{
             ZStack {
                 Color(colorScheme == .dark ? .black : .white)
-                    
+                
                     .ignoresSafeArea()
                 
                 VStack (spacing: 12){
@@ -36,15 +43,15 @@ struct SearchView: View {
                                 }
                                 .foregroundStyle(Color("PrimaryText"))
                                 .padding(.horizontal, 12)
-                                    .padding(.vertical, 8)
-                                    .glassEffect(.regular.tint(Color("PrimaryBackground")).interactive())
+                                .padding(.vertical, 8)
+                                .glassEffect(.regular.tint(Color("PrimaryBackground")).interactive())
                             }
                             
                         }
                         .padding(.horizontal)
                         
                     }
-                   
+                    
                     HStack{
                         TextField("Search jokes by term (e.g. pizza)", text: $viewModel.searchTerm)
                             .textFieldStyle(.roundedBorder)
@@ -62,7 +69,7 @@ struct SearchView: View {
                                 .scaledToFill()
                                 .frame(maxWidth: .infinity)
                                 .clipped()
-                                
+                            
                             if viewModel.isLoading {
                                 ProgressView("Searching jokes ...")
                                     .padding(.top, 8)
@@ -86,42 +93,98 @@ struct SearchView: View {
                                     }
                                     .padding(.vertical, 4)
                                     .padding(.horizontal, 4)
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                        ShareLink(item: "Check out this dad joke:\n\(joke.joke)") {
+                                            Label("Share", systemImage: "square.and.arrow.up")
+                                        }
+                                        .tint(colorScheme == .dark ? .black : .indigo)
+                                    }
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button {
+                                            toggleFavorite(for: joke.joke)
+                                        } label: {
+                                            Label("Like", systemImage: "heart.fill")
+                                        }
+                                        .tint(colorScheme == .dark ? .red : .pink)
+                                    }
+                                    
+                                    
+                                    .padding(.horizontal, 20)
+                                    
                                     
                                 }
+                                .listStyle(.plain)
                                 .glassEffect(in: .rect(cornerRadius: 12))
                                 .mask(RoundedRectangle(cornerRadius: 12))
-                                .listStyle(.plain)
-                                .padding(.horizontal, 20)
+                                
                                 
                             }
-                            
-                            
                         }
+                        .padding(.top)
                     }
-                    .padding(.top)
                 }
+                .navigationTitle("Search for Jokes")
+                
+                
+                
+                
+                
+                
+                
             }
-            .navigationTitle("Search for Jokes")
-            
-            
-            
-            
-            
-            
             
         }
-        
+        .sensoryFeedback(.success, trigger: toastMessage) { _, newValue in
+            newValue == "Joke liked"
+        }
+        .sensoryFeedback(.warning, trigger: toastMessage) { _, newValue in
+            newValue == "Removed from liked jokes"
+        }
+        .overlay(alignment: .bottom) {
+            if showToast {
+                AppToastView(message: toastMessage)
+                    .padding(.bottom, 20)
+                    .transition(.move(edge: .bottom)
+                        .combined(with: .opacity))
+            }
+        }
+    }
+    
+    private func toggleFavorite(for jokeText: String) {
+        if let existing = favorites.first(where: { $0.text == jokeText }) {
+            modelContext.delete(existing)
+            toastMessage = "Removed from liked jokes"
+        } else {
+            modelContext.insert(FavoriteJoke(text: jokeText))
+            toastMessage = "Joke liked"
+        }
+
+        do {
+            try modelContext.save()
+            showToastTemporarily()
+        } catch {
+            print("Failed to save favorite from search: \(error.localizedDescription)")
+        }
+    }
+    private func showToastTemporarily() {
+        withAnimation(.easeInOut(duration: 0.2)) {
+            showToast = true
+        }
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) {
+            withAnimation(.easeInOut(duration: 0.2)) {
+                showToast = false
+            }
+        }
+    }
+    
+    private struct JokeCategory: Identifiable{
+        let id = UUID()
+        let name: String
+        let term: String
     }
 }
-
-
-private struct JokeCategory: Identifiable{
-    let id = UUID()
-    let name: String
-    let term: String
-}
-
-#Preview {
-    SearchView()
-}
+    #Preview {
+        SearchView()
+    }
 
