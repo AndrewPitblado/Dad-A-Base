@@ -44,12 +44,12 @@ struct ContentView: View {
                     Image(colorScheme == .dark ? "DadSignDark" : "DadSign")
                             .resizable()
                             .interpolation(.high)
-                            .antialiased(true)
+                            
                             .scaledToFit()
                             .frame(maxWidth: .infinity, maxHeight: 400)
                             .scaleEffect(2.0)
-                            .clipShape(Rectangle())
-                            .clipped()
+                            
+                            
                             .padding()
                         
                         overlayContent
@@ -109,10 +109,11 @@ struct ContentView: View {
         }
         .task {
             await viewModel.fetchJoke()
+                
         }
         .animation(.spring(duration: 0.35), value: viewModel.currentJokeText)
         
-        .overlay(alignment: .bottomLeading) {
+        .overlay(alignment: .init(horizontal: .center, vertical: .bottom)) {
             if showToast {
                 Text(toastMessage)
                     .font(.subheadline.weight(.semibold))
@@ -121,8 +122,6 @@ struct ContentView: View {
                     .padding(.vertical, 10)
                     .background(Color("PrimaryBackground").opacity(0.9))
                     .clipShape(Capsule())
-                    .padding(.leading, 10)
-                    .padding(.bottom, 100)
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
@@ -182,7 +181,6 @@ struct ContentView: View {
                 .padding(.horizontal, 5)
                 .padding(.vertical, 10)
                 .minimumScaleFactor(0.75)
-                .background(Color("PrimaryBackground"))
                 .foregroundStyle(Color("PrimaryText"))
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
