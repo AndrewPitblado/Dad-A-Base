@@ -43,6 +43,7 @@ struct LikedJokesView: View {
                                             Label("Share", systemImage: "square.and.arrow.up")
                                         }
                                         .tint(Color("PrimaryBackground"))
+                                        .foregroundStyle(Color("PrimaryText"))
                                     }
                                 }
                                 .onDelete(perform: deleteFavorites)
