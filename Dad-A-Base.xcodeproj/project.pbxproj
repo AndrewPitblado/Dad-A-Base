@@ -10,22 +10,9 @@
 		F98D21082F6481AB009A157A /* Dad-A-Base.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Dad-A-Base.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		F9BEFB7B2F678724004B2DF7 /* Exceptions for "Dad-A-Base" folder in "Dad-A-Base" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = F98D21072F6481AB009A157A /* Dad-A-Base */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		F98D210A2F6481AB009A157A /* Dad-A-Base */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				F9BEFB7B2F678724004B2DF7 /* Exceptions for "Dad-A-Base" folder in "Dad-A-Base" target */,
-			);
 			path = "Dad-A-Base";
 			sourceTree = "<group>";
 		};
