@@ -13,6 +13,8 @@ struct LikedJokesView: View {
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.modelContext) private var modelContext
     
+    @State private var shareText: String?
+    
     var body: some View {
         NavigationStack{
             ZStack {
@@ -36,8 +38,21 @@ struct LikedJokesView: View {
                                     .padding(.vertical, 8)
                                     .listRowBackground(Color("PrimaryBackground").opacity(0.75))
                                     .multilineTextAlignment(.leading)
+                                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
+                                        Button {
+                                            shareText = favorite.text
+                                            
+                                        } label: {
+                                            Label("Share", systemImage: "square.and.arrow.up")
+                                        }
+                                        .tint(.blue)
+                                    }
                                 }
                                 .onDelete(perform: deleteFavorites)
+                                
+                                            
+                                        
+                                    
                             }
                             .scrollContentBackground(.hidden)
                             .background(Color.clear)
@@ -47,8 +62,15 @@ struct LikedJokesView: View {
                 }
             .navigationTitle("Liked Jokes")
         }
-           
-
+        .sheet(isPresented: Binding(
+            get: { shareText != nil },
+            set: { if !$0 { shareText = nil } }
+        )) {
+            if let text = shareText {
+                ShareLink(items: ["Check out this dad joke:\n\n\(text)"])
+            }
+            
+        }
         
     }
     

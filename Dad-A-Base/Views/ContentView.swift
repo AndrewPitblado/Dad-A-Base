@@ -81,8 +81,7 @@ struct ContentView: View {
 
                     ShareLink(
                         item: "Check out this dad joke:\n\n\(viewModel.currentJokeText)",
-                        subject: Text("Dad Joke")
-                    ) {
+                        subject: Text("Dad Joke")){
                         Label("Share", systemImage: "square.and.arrow.up")
                     }
                     .padding()
@@ -112,6 +111,19 @@ struct ContentView: View {
                 
         }
         .animation(.spring(duration: 0.35), value: viewModel.currentJokeText)
+        .sensoryFeedback(.success, trigger: toastMessage) {
+            _, newValue in
+            newValue == "Joke liked"
+        }
+        .sensoryFeedback(.warning, trigger: toastMessage) {
+            _, newValue in
+            newValue == "Removed from liked jokes"
+        }
+        .sensoryFeedback(.success, trigger: viewModel.jokeState) {
+            _, newValue in
+            if case .success = newValue { return true }
+            return false
+        }
         
         .overlay(alignment: .init(horizontal: .center, vertical: .bottom)) {
             if showToast {
