@@ -38,12 +38,14 @@ struct LikedJokesView: View {
                                     .padding(.vertical, 8)
                                     .listRowBackground(Color("PrimaryBackground").opacity(0.75))
                                     .multilineTextAlignment(.leading)
-                                    .swipeActions(edge: .leading, allowsFullSwipe: false) {
-                                        ShareLink(items: ["Check out this dad joke:\n\n\(favorite.text)"]) {
+                                    .swipeActions(edge: .leading, allowsFullSwipe: true) {
+                                        ShareLink(
+                                            item: "Check out this dad joke:\n\(favorite.text)",
+                                            
+                                        ) {
                                             Label("Share", systemImage: "square.and.arrow.up")
                                         }
-                                        .background(Color("PrimaryBackground"))
-                                        .foregroundStyle(Color("PrimaryText"))
+                                        .tint(colorScheme == .dark ? .black: .indigo)
                                     }
                                 }
                                 .onDelete(perform: deleteFavorites)
@@ -77,6 +79,7 @@ struct LikedJokesView: View {
 
 
 
-#Preview{
+#Preview("Empty State") {
     LikedJokesView()
+        .modelContainer(for: FavoriteJoke.self, inMemory: true)
 }

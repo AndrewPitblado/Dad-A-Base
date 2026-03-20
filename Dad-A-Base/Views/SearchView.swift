@@ -22,9 +22,8 @@ struct SearchView: View {
     var body: some View {
         NavigationStack{
             ZStack {
-                Image(colorScheme == .dark ? "DarkBbq" : "Bbq")
-                    .resizable()
-                    .scaleEffect(1.1)
+                Color(colorScheme == .dark ? .black : .white)
+                    
                     .ignoresSafeArea()
                 
                 VStack (spacing: 12){
@@ -56,19 +55,28 @@ struct SearchView: View {
                     }
                     .padding(.horizontal)
                     Group {
-                        if viewModel.isLoading {
-                            ProgressView("Searching jokes ...")
-                                .padding(.top, 8)
-                        }
-                        
-                        if let errorMessage = viewModel.errorMessage {
-                            Text(errorMessage)
-                                .foregroundColor(.red)
-                                .padding(.horizontal)
-                        }
-                        
-                        if !viewModel.isLoading {
+                        ZStack{
                             
+                            Image(colorScheme == .dark ? "DarkBbq" : "Bbq")
+                                .resizable()
+                                .scaledToFill()
+                                .frame(maxWidth: .infinity)
+                                .clipped()
+                                
+                            if viewModel.isLoading {
+                                ProgressView("Searching jokes ...")
+                                    .padding(.top, 8)
+                            }
+                            
+                            if let errorMessage = viewModel.errorMessage {
+                                Text(errorMessage)
+                                    .foregroundColor(.red)
+                                    .padding(.horizontal)
+                            }
+                            
+                            if !viewModel.isLoading {
+                                
+                                
                                 
                                 List(viewModel.results) { joke in
                                     VStack(alignment: .leading, spacing: 6) {
@@ -84,12 +92,12 @@ struct SearchView: View {
                                 .mask(RoundedRectangle(cornerRadius: 12))
                                 .listStyle(.plain)
                                 .padding(.horizontal, 20)
+                                
+                            }
                             
                             
                         }
-                            
                     }
-                   
                     .padding(.top)
                 }
             }
