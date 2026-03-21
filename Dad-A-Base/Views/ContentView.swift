@@ -17,6 +17,14 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \FavoriteJoke.dateAdded, order: .reverse) private var favorites: [FavoriteJoke]
 
+    private var adaptivePrimaryTextColor: Color {
+        colorScheme == .dark ? .white : .black
+    }
+
+    private var actionButtonPadding: EdgeInsets {
+        EdgeInsets(top: 10, leading: 12, bottom: 10, trailing: 12)
+    }
+
     private var isCurrentJokeFavorite: Bool {
         if case .success(let joke) = viewModel.jokeState {
             return favorites.contains { $0.text == joke }
@@ -32,78 +40,110 @@ struct ContentView: View {
             VStack {
                 Text("Here is your dad joke of the day!")
                     .foregroundStyle(Color("PrimaryText"))
-                    .font(.title)
                     .padding()
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .background(Color("PrimaryBackground"))
+            
+                    .font(.title)
+                    .glassEffect(.regular.tint(Color("PrimaryBackground")).interactive())
+                    
+                    .shadow(color:Color("PrimaryText"),radius: 5)
                     .padding(.top, 50)
+                
+                //Count down timer until next joke refreshes - only shows when a joke is successfully loaded and counts down in real time
+                if case .success = viewModel.jokeState {
+                    
+                    Text("Next dad joke in \(viewModel.timeUntilNextJokeSeconds) seconds")
+                        .font(.subheadline)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        
+                        .foregroundStyle(adaptivePrimaryTextColor)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 8)
+                        .glassEffect(.regular.tint(Color("PrimaryBackground")).interactive())
+                        .shadow(color:Color("PrimaryText"),radius: 2)
+                }
 
                 Spacer()
 
                 ZStack {
                     Image(colorScheme == .dark ? "DadSignDark" : "DadSign")
-                            .resizable()
-                            .interpolation(.high)
-                            
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity, maxHeight: 400)
-                            .scaleEffect(2.0)
-                            
-                            
-                            .padding()
-                        
-                        overlayContent
-                            .frame(maxWidth: 400, maxHeight: 300)
-                            .offset(y: -70)
-                            
-                }
-                Rectangle()
-                    .fill(Color("PrimaryBackground"))
-                    .frame(height: 25)
-                    .offset(y: -50)
+                        .resizable()
+                        .interpolation(.high)
                     
-
-                HStack {
-                    Button {
-                        toggleFavoriteForCurrentJoke()
-                        
-                    } label: {
-                        Label(
-                            isCurrentJokeFavorite ? "Liked" : "Like",
-                            systemImage: isCurrentJokeFavorite ? "heart.fill" : "heart"
-                        )
-                    }
-                    .padding()
-                    .background(Color("LikeButton").opacity(0.8))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(Color("PrimaryText"))
-                    .padding(8)
-
-                    ShareLink(
-                        item: "Check out this dad joke:\n\n\(viewModel.currentJokeText)",
-                        subject: Text("Dad Joke")){
-                        Label("Share", systemImage: "square.and.arrow.up")
-                    }
-                    .padding()
-                    .background(viewModel.canShare ? Color("PrimaryBackground").opacity(0.8) : Color.gray.opacity(0.6))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(Color("PrimaryText"))
-                    .padding(8)
-                    .disabled(!viewModel.canShare)
-
-                    Button {
-                        Task { await viewModel.fetchJokeIfNeeded(force: true) }
-                    } label: {
-                        Label("New Joke", systemImage: "arrow.clockwise")
-                    }
-                    .padding()
-                    .background(Color("JokeButton").opacity(0.9))
-                    .clipShape(RoundedRectangle(cornerRadius: 10))
-                    .foregroundStyle(Color("PrimaryText"))
-                    .padding(5)
+                        .scaledToFit()
+                        .frame(maxWidth: .infinity, maxHeight: 400)
+                        .scaleEffect(2.0)
+                    
+                    
+                    
+                    
+                    overlayContent
+                        .frame(maxWidth: 400, maxHeight: 300)
+                        .offset(y: -70)
+                    
                 }
-
-                Spacer()
+                    
+                    HStack(spacing: 12) {
+                        Button {
+                            toggleFavoriteForCurrentJoke()
+                            
+                        } label: {
+                            Label(
+                                isCurrentJokeFavorite ? "Liked" : "Like",
+                                systemImage: isCurrentJokeFavorite ? "heart.fill" : "heart"
+                            )
+                            .labelStyle(.titleAndIcon)
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.85)
+                            .allowsTightening(true)
+                            .frame(maxWidth: .infinity)
+                            .padding(actionButtonPadding)
+                            .foregroundStyle(isCurrentJokeFavorite ? Color("PrimaryBackground") : adaptivePrimaryTextColor)
+                        }
+                        .buttonStyle(.glass(.regular.tint(Color("LikeButton")).interactive()))
+                        
+                        ShareLink(
+                            item: "Check out this dad joke:\n\n\(viewModel.currentJokeText)",
+                            subject: Text("Dad Joke")){
+                                Label("Share", systemImage: "square.and.arrow.up")
+                                    .labelStyle(.titleAndIcon)
+                                    .lineLimit(1)
+                                    .minimumScaleFactor(0.85)
+                                    .allowsTightening(true)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(actionButtonPadding)
+                                    .foregroundStyle(viewModel.canShare ? adaptivePrimaryTextColor : Color.gray)
+                            }
+                            .buttonStyle(.glass(.regular.tint(viewModel.canShare ? Color("PrimaryBackground") : Color.gray).interactive()))
+                            .disabled(!viewModel.canShare)
+                        
+                        Button {
+                            Task { await viewModel.fetchJokeIfNeeded(force: true) }
+                        } label: {
+                            Label("New", systemImage: "arrow.clockwise")
+                                .labelStyle(.titleAndIcon)
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.85)
+                                .allowsTightening(true)
+                                .frame(maxWidth: .infinity)
+                                .padding(actionButtonPadding)
+                                .foregroundStyle(adaptivePrimaryTextColor)
+                        }
+                        .buttonStyle(.glass(.regular.tint(Color("JokeButton")).interactive()))
+                    }
+                    .padding(.horizontal, 10)
+                    .padding(.top, 50)      // where the section starts (near feet)
+                    .padding(.bottom, 40)
+                    .frame(maxWidth: .infinity)
+                    .background(alignment: .top) {
+                        RoundedRectangle(cornerRadius: 18)
+                            .fill(Color("PrimaryBackground"))
+                            .opacity(0.4)
+                            .shadow(color:Color("PrimaryText"),radius: 5)
+                            .ignoresSafeArea(edges: .bottom)
+                    }
+                        
+                
             }
         }
         .task {

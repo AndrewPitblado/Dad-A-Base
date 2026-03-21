@@ -19,20 +19,28 @@ final class JokeViewModel: ObservableObject {
     }
 
     @Published var jokeState: JokeState = .loading
+    @Published private(set) var timeUntilNextJokeSeconds: Int = 0
     private let lastFetchKey = "lastJokeFetchDate"
     private let lastJokeTextKey = "lastJokeText"
-    private let autoRefreshInterval: TimeInterval = 24*60*60 // one day
+    private let autoRefreshInterval: TimeInterval = 24 * 60 * 60 // one day
+    private var countdownTask: Task<Void, Never>?
 
     init() {
         if let cachedJoke = UserDefaults.standard.string(forKey: lastJokeTextKey),
            !cachedJoke.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             jokeState = .success(cachedJoke)
         }
+        startCountdownTicker()
+    }
+
+    deinit {
+        countdownTask?.cancel()
     }
 
     var currentJokeText: String {
-        if case .success(let joke) = jokeState{
+        if case .success(let joke) = jokeState {
             return joke
+            
         }
         return ""
     }
@@ -50,12 +58,14 @@ final class JokeViewModel: ObservableObject {
         }
 
         if case .success = jokeState {
+            updateCountdownSeconds()
             return
         }
 
         if let cachedJoke = UserDefaults.standard.string(forKey: lastJokeTextKey),
            !cachedJoke.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             jokeState = .success(cachedJoke)
+            updateCountdownSeconds()
             return
         }
 
@@ -95,9 +105,34 @@ final class JokeViewModel: ObservableObject {
             jokeState = .success(decoded.joke)
             UserDefaults.standard.set(Date(), forKey: lastFetchKey)
             UserDefaults.standard.set(decoded.joke, forKey: lastJokeTextKey)
+            updateCountdownSeconds()
         } catch {
             jokeState = .error("Network error. Please try again.")
         }
+    }
+
+    private func startCountdownTicker() {
+        countdownTask?.cancel()
+        countdownTask = Task { [weak self] in
+            guard let self else { return }
+            self.updateCountdownSeconds()
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(1))
+                self.updateCountdownSeconds()
+            }
+        }
+    }
+
+    private func updateCountdownSeconds() {
+        let defaults = UserDefaults.standard
+        guard let lastFetch = defaults.object(forKey: lastFetchKey) as? Date else {
+            timeUntilNextJokeSeconds = 0
+            return
+        }
+
+        let elapsed = Date().timeIntervalSince(lastFetch)
+        let remaining = max(0, Int(ceil(autoRefreshInterval - elapsed)))
+        timeUntilNextJokeSeconds = remaining
     }
 }
 
