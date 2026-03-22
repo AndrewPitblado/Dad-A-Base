@@ -37,6 +37,11 @@ final class JokeSearchViewModel: ObservableObject {
             errorMessage = "Search failed: \(error.localizedDescription)"
         }
     }
+
+    func clearSearchState() {
+        results = []
+        errorMessage = nil
+    }
 }
 
 enum DadJokeAPI {
